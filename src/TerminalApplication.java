@@ -141,5 +141,34 @@ class DrawCharacterCommand implements Command {
         data[2] = (byte) colorIndex;
         data[3] = (byte) c;
     }
+}
 
+class DrawLineCommand implements Command {
+    
+        byte commandCode;
+        int commandLength;
+        Screen screen;
+        byte[] data;
+    
+        DrawLineCommand(Screen screen) {
+            this.commandCode = 0x03;
+            this.commandLength = 8;
+            this.screen = screen;
+        }
+    
+        @Override
+        public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+            screen.drawLine((int) data[0], (int) data[1], (int) data[2], (int) data[3], (int) data[4], (char) data[5]);
+        }
+    
+        public void addCommandParameters(int x1, int y1, int x2, int y2, int colorIndex, char c) {
+            data = new byte[commandLength];
+    
+            data[0] = (byte) x1;
+            data[1] = (byte) y1;
+            data[2] = (byte) x2;
+            data[3] = (byte) y2;
+            data[4] = (byte) colorIndex;
+            data[5] = (byte) c;
+        }
 }
