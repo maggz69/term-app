@@ -6,10 +6,13 @@ import java.util.Map;
 
 interface Command {
 
-    int commandLength = 4;
-    byte commandCode = 0x01;
+    int commandLength = 1;
+    byte commandCode = 0x00;
 
     void executeCommand() throws IllegalArgumentException;
+
+    void setDataBytes(byte[] data);
+    int getCommandLength();
 
 }
 
@@ -68,6 +71,7 @@ public class TerminalApplication {
 
         while (!isBreakCondition) {
             try {
+                // read one byte at a time
                 inputStream.read(dataCursor, offset, 1);
 
                 if (dataCursor[0] == 0xff) {
@@ -77,6 +81,17 @@ public class TerminalApplication {
 
                 byte commandCode = dataCursor[0];
                 Command command = mapCommandCodeToCommand(commandCode, screenSetupCommand.screen);
+
+                // read the command length
+                byte[] dataBytes = new byte[command.getCommandLength()];
+                inputStream.read(dataBytes,offset, command.getCommandLength());
+
+                // adjust the offset
+                offset += command.getCommandLength();
+
+                command.setDataBytes(dataBytes);
+
+                commands.put(commandCode, command);
 
             } catch (Exception e) {
                 System.out.println("Error while reading the command code " + e.getMessage());
@@ -139,6 +154,16 @@ class ScreenSetupCommand implements Command {
         data[1] = (byte) height;
         data[2] = (byte) colorMode;
     }
+
+    @Override
+    public int getCommandLength() {
+        return commandLength;
+    }
+
+    @Override
+    public void setDataBytes(byte[] data) {
+        this.data = data;
+    }
 }
 
 class DrawCharacterCommand implements Command {
@@ -166,6 +191,16 @@ class DrawCharacterCommand implements Command {
         data[1] = (byte) y;
         data[2] = (byte) colorIndex;
         data[3] = (byte) c;
+    }
+
+    @Override
+    public void setDataBytes(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public int getCommandLength() {
+        return commandLength;
     }
 }
 
@@ -197,6 +232,16 @@ class DrawLineCommand implements Command {
         data[4] = (byte) colorIndex;
         data[5] = (byte) c;
     }
+
+    @Override
+    public void setDataBytes(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public int getCommandLength() {
+        return commandLength;
+    }
 }
 
 class RenderTextCommand implements Command {
@@ -226,6 +271,16 @@ class RenderTextCommand implements Command {
         data[2] = (byte) colorIndex;
         this.text = text;
     }
+
+    @Override
+    public void setDataBytes(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public int getCommandLength() {
+        return commandLength;
+    }
 }
 
 class MoveCursorCommand implements Command {
@@ -251,6 +306,16 @@ class MoveCursorCommand implements Command {
 
         data[0] = (byte) x;
         data[1] = (byte) y;
+    }
+
+    @Override
+    public void setDataBytes(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public int getCommandLength() {
+        return commandLength;
     }
 }
 
@@ -278,6 +343,16 @@ class DrawAtCursorCommand implements Command {
         data[0] = (byte) c;
         data[1] = (byte) colorIndex;
     }
+
+    @Override
+    public void setDataBytes(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public int getCommandLength() {
+        return commandLength;
+    }
 }
 
 class ClearScreenCommand implements Command {
@@ -300,5 +375,15 @@ class ClearScreenCommand implements Command {
 
     public void addCommandParameters() {
         data = new byte[commandLength];
+    }
+
+    @Override
+    public void setDataBytes(byte[] data) {
+        this.data = data;
+    }
+
+    @Override
+    public int getCommandLength() {
+        return commandLength;
     }
 }
