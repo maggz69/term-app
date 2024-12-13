@@ -69,7 +69,7 @@ public class TerminalApplication {
         return commands;
     }
 
-    private Command mapCommandCodeToCommand(byte commandCode,Screen screen) throws IllegalArgumentException {
+    private Command mapCommandCodeToCommand(byte commandCode, Screen screen) throws IllegalArgumentException {
         switch (commandCode) {
             case 0x2:
                 return new DrawCharacterCommand(screen);
@@ -144,31 +144,60 @@ class DrawCharacterCommand implements Command {
 }
 
 class DrawLineCommand implements Command {
-    
-        byte commandCode;
-        int commandLength;
-        Screen screen;
-        byte[] data;
-    
-        DrawLineCommand(Screen screen) {
-            this.commandCode = 0x03;
-            this.commandLength = 8;
-            this.screen = screen;
-        }
-    
-        @Override
-        public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
-            screen.drawLine((int) data[0], (int) data[1], (int) data[2], (int) data[3], (int) data[4], (char) data[5]);
-        }
-    
-        public void addCommandParameters(int x1, int y1, int x2, int y2, int colorIndex, char c) {
-            data = new byte[commandLength];
-    
-            data[0] = (byte) x1;
-            data[1] = (byte) y1;
-            data[2] = (byte) x2;
-            data[3] = (byte) y2;
-            data[4] = (byte) colorIndex;
-            data[5] = (byte) c;
-        }
+
+    byte commandCode;
+    int commandLength;
+    Screen screen;
+    byte[] data;
+
+    DrawLineCommand(Screen screen) {
+        this.commandCode = 0x03;
+        this.commandLength = 8;
+        this.screen = screen;
+    }
+
+    @Override
+    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+        screen.drawLine((int) data[0], (int) data[1], (int) data[2], (int) data[3], (int) data[4], (char) data[5]);
+    }
+
+    public void addCommandParameters(int x1, int y1, int x2, int y2, int colorIndex, char c) {
+        data = new byte[commandLength];
+
+        data[0] = (byte) x1;
+        data[1] = (byte) y1;
+        data[2] = (byte) x2;
+        data[3] = (byte) y2;
+        data[4] = (byte) colorIndex;
+        data[5] = (byte) c;
+    }
+}
+
+class RenderTextCommand implements Command {
+
+    byte commandCode;
+    int commandLength;
+    Screen screen;
+    byte[] data;
+    byte[] text;
+
+    RenderTextCommand(Screen screen) {
+        this.commandCode = 0x04;
+        this.commandLength = 4;
+        this.screen = screen;
+    }
+
+    @Override
+    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+        screen.renderText((int) data[0], (int) data[1], (int) data[2], text);
+    }
+
+    public void addCommandParameters(int x, int y, int colorIndex, byte[] text) {
+        data = new byte[commandLength];
+
+        data[0] = (byte) x;
+        data[1] = (byte) y;
+        data[2] = (byte) colorIndex;
+        this.text = text;
+    }
 }

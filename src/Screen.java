@@ -75,6 +75,12 @@ public class Screen {
         }
     }
 
+    public void renderText(int x, int y, int colorIndex, byte[] text) {
+        for(int i = 0; i < text.length; i++) {
+            drawCharacter(x + i, y, colorIndex, (char) text[i]);
+        }
+    }
+
 
 
 
