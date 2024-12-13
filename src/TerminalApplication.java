@@ -253,3 +253,26 @@ class DrawAtCursorCommand implements Command {
         data[1] = (byte) colorIndex;
     }
 }
+
+class ClearScreenCommand implements Command {
+
+    byte commandCode;
+    int commandLength;
+    Screen screen;
+    byte[] data;
+
+    ClearScreenCommand(Screen screen) {
+        this.commandCode = 0x07;
+        this.commandLength = 0;
+        this.screen = screen;
+    }
+
+    @Override
+    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+        screen.clearScreen();
+    }
+
+    public void addCommandParameters() {
+        data = new byte[commandLength];
+    }
+}
