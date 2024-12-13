@@ -201,3 +201,29 @@ class RenderTextCommand implements Command {
         this.text = text;
     }
 }
+
+class MoveCursorCommand implements Command {
+
+    byte commandCode;
+    int commandLength;
+    Screen screen;
+    byte[] data;
+
+    MoveCursorCommand(Screen screen) {
+        this.commandCode = 0x05;
+        this.commandLength = 2;
+        this.screen = screen;
+    }
+
+    @Override
+    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+        screen.moveCursor((int) data[0], (int) data[1]);
+    }
+
+    public void addCommandParameters(int x, int y) {
+        data = new byte[commandLength];
+
+        data[0] = (byte) x;
+        data[1] = (byte) y;
+    }
+}

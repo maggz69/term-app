@@ -81,6 +81,10 @@ public class Screen {
         }
     }
 
+    public void moveCursor(int x, int y) {
+        System.out.print("\033[" + (y + 1) + ";" + (x + 1) + "H");
+    }
+
 
 
 
