@@ -8,7 +8,6 @@ interface Command {
 
     int commandLength = 4;
     byte commandCode = 0x01;
-    byte[] data;
 
     void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException;
 
@@ -16,18 +15,24 @@ interface Command {
 
 public class TerminalApplication {
 
+    Screen screen;
+    Map<Byte, Command> commands;
+
     public static void main(String[] args) {
+        TerminalApplication terminalApplication = new TerminalApplication();
         try {
             InputStream inputStream = System.in;
-            Screen screen = null;
-
-            Map<Byte, Command> commands = initializeCommands(inputStream);
+            terminalApplication.commands = terminalApplication.initializeCommands(inputStream);
         } catch (Exception e) {
             System.out.println("Error while initializing the terminal application " + e.getMessage());
         }
     }
 
-    private static Map<Byte, Command> initializeCommands(InputStream inputStream) {
+    private int getCommandsLength() {
+        return commands.size();
+    }
+
+    private Map<Byte, Command> initializeCommands(InputStream inputStream) {
         Map<Byte, Command> commands = new HashMap<>();
 
         // read the first byte to ensure it is the ScreenSetupCommand
@@ -44,8 +49,10 @@ public class TerminalApplication {
         commands.put(screenSetupCommand.commandCode, screenSetupCommand);
 
         // loop to read the rest of the commands
-        // read each byte then determine the command code, read the command.length and add the command to the map
-        // if the command code is not found, print an error message, if the command code ix 0xff, break the loop
+        // read each byte then determine the command code, read the command.length and
+        // add the command to the map
+        // if the command code is not found, print an error message, if the command code
+        // ix 0xff, break the loop
 
         boolean isBreakCondition = false;
 
@@ -53,16 +60,20 @@ public class TerminalApplication {
 
         byte[] dataCursor = new byte[1];
 
-        while(!isBreakCondition) {
+        while (!isBreakCondition) {
             try {
                 inputStream.read(dataCursor, offset, 1);
 
-                if(dataCursor[0] == 0xff) {
+                if (dataCursor[0] == 0xff) {
                     isBreakCondition = true;
                     break;
                 }
 
+                byte commandCode = dataCursor[0];
+                Command command = mapCommandCodeToCommand(commandCode, screenSetupCommand.screen);
 
+            } catch (Exception e) {
+                System.out.println("Error while reading the command code " + e.getMessage());
             }
         }
 
@@ -74,6 +85,15 @@ public class TerminalApplication {
             case 0x2:
                 return new DrawCharacterCommand(screen);
             case 0x3:
+                return new DrawLineCommand(screen);
+            case 0x4:
+                return new RenderTextCommand(screen);
+            case 0x5:
+                return new MoveCursorCommand(screen);
+            case 0x6:
+                return new DrawAtCursorCommand(screen);
+            case 0x7:
+                return new ClearScreenCommand(screen);
             default:
                 throw new IllegalArgumentException("Invalid command code");
         }
