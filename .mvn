@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Function to build the application
+build() {
+    echo "Building the application..."
+    mvn clean install
+}
+
+# Function to test the application
+test() {
+    echo "Testing the application..."
+    build
+    mvn test
+}
+
+# Check the command passed to the script
+case "$1" in
+    build)
+        build
+        ;;
+    test)
+        test
+        ;;
+    *)
+        echo "Usage: $0 {build|test}"
+        exit 1
+        ;;
+esac
