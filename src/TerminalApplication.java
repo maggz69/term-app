@@ -9,7 +9,7 @@ interface Command {
     int commandLength = 4;
     byte commandCode = 0x01;
 
-    void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException;
+    void executeCommand() throws IllegalArgumentException;
 
 }
 
@@ -23,6 +23,12 @@ public class TerminalApplication {
         try {
             InputStream inputStream = System.in;
             terminalApplication.commands = terminalApplication.initializeCommands(inputStream);
+
+            // loop through the commands and execute them
+            for (int i = 0; i < terminalApplication.getCommandsLength(); i++) {
+                Command command = terminalApplication.commands.get((byte) i);
+                command.executeCommand();
+            }
         } catch (Exception e) {
             System.out.println("Error while initializing the terminal application " + e.getMessage());
         }
@@ -114,7 +120,7 @@ class ScreenSetupCommand implements Command {
     }
 
     @Override
-    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+    public void executeCommand() throws IllegalArgumentException {
         if (data.length != commandLength) {
             throw new IllegalArgumentException("Invalid data length");
         }
@@ -149,7 +155,7 @@ class DrawCharacterCommand implements Command {
     }
 
     @Override
-    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+    public void executeCommand() throws IllegalArgumentException {
         screen.drawCharacter((int) data[0], (int) data[1], (int) data[2], (char) data[3]);
     }
 
@@ -177,7 +183,7 @@ class DrawLineCommand implements Command {
     }
 
     @Override
-    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+    public void executeCommand() throws IllegalArgumentException {
         screen.drawLine((int) data[0], (int) data[1], (int) data[2], (int) data[3], (int) data[4], (char) data[5]);
     }
 
@@ -208,7 +214,7 @@ class RenderTextCommand implements Command {
     }
 
     @Override
-    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+    public void executeCommand() throws IllegalArgumentException {
         screen.renderText((int) data[0], (int) data[1], (int) data[2], text);
     }
 
@@ -236,7 +242,7 @@ class MoveCursorCommand implements Command {
     }
 
     @Override
-    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+    public void executeCommand() throws IllegalArgumentException {
         screen.moveCursor((int) data[0], (int) data[1]);
     }
 
@@ -262,7 +268,7 @@ class DrawAtCursorCommand implements Command {
     }
 
     @Override
-    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+    public void executeCommand() throws IllegalArgumentException {
         screen.drawAtCursor((char) data[0], data[1]);
     }
 
@@ -288,7 +294,7 @@ class ClearScreenCommand implements Command {
     }
 
     @Override
-    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+    public void executeCommand() throws IllegalArgumentException {
         screen.clearScreen();
     }
 
