@@ -227,3 +227,29 @@ class MoveCursorCommand implements Command {
         data[1] = (byte) y;
     }
 }
+
+class DrawAtCursorCommand implements Command {
+
+    byte commandCode;
+    int commandLength;
+    Screen screen;
+    byte[] data;
+
+    DrawAtCursorCommand(Screen screen) {
+        this.commandCode = 0x06;
+        this.commandLength = 2;
+        this.screen = screen;
+    }
+
+    @Override
+    public void executeCommand(byte[] data, Screen screen) throws IllegalArgumentException {
+        screen.drawAtCursor((char) data[0], data[1]);
+    }
+
+    public void addCommandParameters(char c, int colorIndex) {
+        data = new byte[commandLength];
+
+        data[0] = (byte) c;
+        data[1] = (byte) colorIndex;
+    }
+}
